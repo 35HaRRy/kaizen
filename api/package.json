@@ -1,0 +1,12 @@
+{
+  "name": "@kaizen/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "admin:create": "tsx --env-file-if-exists=.env tools/admin.ts",
+    "media:cleanup": "tsx --env-file-if-exists=.env tools/maintenance.ts"
+  }
+}
