@@ -157,5 +157,5 @@
 
 - [x] Tasarım onaylandı.
 - [x] Plan yazıldı ve öz incelemesi yapıldı.
-- [ ] Kullanıcı planı ve yürütme yöntemini onayladı.
-- [ ] Görevler 1–7 tamamlandı.
+- [x] Kullanıcı planı ve inline yürütme yöntemini onayladı; çalışma dalı `feature/api`.
+- [x] Görevler 1–7'nin yerel uygulaması ve doğrulaması tamamlandı. Gerçek R2/SMTP/Turnstile, VM ve Vercel yayın doğrulamaları erişim bilgileri sağlanana kadar bekliyor; ayrıntılar `docs/superpowers/verification/2026-11-06-kaizen.md`.

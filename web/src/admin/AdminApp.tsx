@@ -1,18 +1,234 @@
-import { useEffect,useState } from 'react';
-import { ArrowRight,ArrowUpRight,LogOut,Layers,LockKeyhole } from 'lucide-react';
-import { apiRequest,ApiError,errorMessage,setCsrfToken } from '../api';
-import { EventList } from './EventList';
-import { EventEditor } from './EventEditor';
-import './admin.css';
-interface Session{username:string;csrfToken:string}
-export default function AdminApp(){
-  const [session,setSession]=useState<Session|null>(),[error,setError]=useState(''),[busy,setBusy]=useState(false),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[retry,setRetry]=useState(0),[dirty,setDirty]=useState(false);
-  useEffect(()=>{document.documentElement.classList.remove('dark');let active=true;setError('');apiRequest<Session>('/auth/session').then(value=>{if(active){setCsrfToken(value.csrfToken);setSession(value);}}).catch(error=>{if(active){if(error instanceof ApiError&&error.status===401)setSession(null);else setError(errorMessage(error));}});return()=>{active=false;};},[retry]);
-  async function login(e:React.FormEvent){e.preventDefault();if(busy)return;setBusy(true);setError('');try{const value=await apiRequest<Session>('/auth/login',{method:'POST',body:JSON.stringify({username,password})});setCsrfToken(value.csrfToken);setSession(value);setPassword('');}catch(error){setError(errorMessage(error));}finally{setBusy(false);}}
-  async function logout(){if(busy||(dirty&&!window.confirm('Kaydedilmemiş değişiklikleriniz silinecek. Çıkış yapılsın mı?')))return;setBusy(true);try{await apiRequest('/auth/logout',{method:'POST'});setSession(null);setCsrfToken('');setDirty(false);}catch(error){setError(errorMessage(error));}finally{setBusy(false);}}
-  if(session===undefined)return <main className="admin-app admin-loading"><p role={error?'alert':'status'}>{error||'Çalışma alanı hazırlanıyor…'}</p>{error&&<button className="admin-button" onClick={()=>setRetry(n=>n+1)}>Yeniden dene</button>}</main>;
-  if(!session)return <main className="admin-app admin-login"><section className="login-story"><a href="/" className="admin-wordmark"><img src="/assets/kaizen-logo-1-rb_d77ba5e7.png" alt=""/>KAIZEN<span>AİKİDO AKADEMİ</span></a><div><h1>Her çalışmanın<br/>bir hikâyesi var.</h1><p>Dojo'da yaşananları bir araya getirin.<br/>Anları saklayın. Birlikte paylaşın.</p></div><span className="login-footer">Nişantaşı, İstanbul</span></section><section className="login-form-region"><form onSubmit={login}><LockKeyhole size={28}/><h2>Tekrar hoş geldiniz.</h2><p>Etkinliklerinizi yönetmek için giriş yapın.</p><label>Kullanıcı adı<input autoComplete="username" required maxLength={80} value={username} onChange={e=>setUsername(e.target.value)}/></label><label>Şifre<input autoComplete="current-password" type="password" required maxLength={256} value={password} onChange={e=>setPassword(e.target.value)}/></label>{error&&<p role="alert" className="admin-error">{error}</p>}<button className="admin-button" disabled={busy}>{busy?'Giriş yapılıyor…':'Çalışma alanına gir'}<ArrowRight size={18}/></button><a className="login-site" href="/">Web sitesine dön <ArrowUpRight size={14}/></a></form></section></main>;
-  const match=window.location.pathname.match(/^\/admin\/events\/([a-f\d]{24})\/?$/);
-  const valid=match||/^\/admin\/?$/.test(window.location.pathname);
-  return <div className="admin-app"><aside className="admin-sidebar"><a href="/admin" className="admin-wordmark"><img src="/assets/kaizen-logo-1-rb_d77ba5e7.png" alt=""/>KAIZEN<span>AİKİDO AKADEMİ</span></a><nav aria-label="Yönetim"><a href="/admin" aria-current="page"><Layers size={18}/>Etkinlikler<ArrowRight size={16}/></a></nav><div className="sidebar-bottom"><a href="/" target="_blank" rel="noreferrer">Siteyi görüntüle<ArrowUpRight size={17}/></a><div className="admin-account"><span>{session.username.slice(0,1).toUpperCase()}</span><div><strong>{session.username}</strong><small>Yönetici</small></div><button aria-label="Çıkış yap" title="Çıkış yap" disabled={busy} onClick={logout}><LogOut size={18}/></button></div></div></aside><main className="admin-main"><header className="admin-topline"><span>Kaizen / İçerik stüdyosu</span><span>Etkinlik yönetimi</span></header>{error&&<p role="alert" className="admin-error">{error}</p>}{!valid?<div className="admin-empty"><h1>Sayfa bulunamadı.</h1><a href="/admin">Etkinliklere dön</a></div>:match?<EventEditor key={match[1]} eventId={match[1]} onDirtyChange={setDirty}/>:<EventList/>}</main></div>;
+import { useEffect, useState } from "react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  LogOut,
+  Layers,
+  LockKeyhole,
+} from "lucide-react";
+import { apiRequest, ApiError, errorMessage, setCsrfToken } from "../api";
+import { EventList } from "./EventList";
+import { EventEditor } from "./EventEditor";
+import "./admin.css";
+interface Session {
+  username: string;
+  csrfToken: string;
+}
+export default function AdminApp() {
+  const [session, setSession] = useState<Session | null>(),
+    [error, setError] = useState(""),
+    [busy, setBusy] = useState(false),
+    [username, setUsername] = useState(""),
+    [password, setPassword] = useState(""),
+    [retry, setRetry] = useState(0),
+    [dirty, setDirty] = useState(false);
+  useEffect(() => {
+    document.documentElement.classList.remove("dark");
+    let active = true;
+    setError("");
+    apiRequest<Session>("/auth/session")
+      .then((value) => {
+        if (active) {
+          setCsrfToken(value.csrfToken);
+          setSession(value);
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          if (error instanceof ApiError && error.status === 401)
+            setSession(null);
+          else setError(errorMessage(error));
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [retry]);
+  async function login(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      const value = await apiRequest<Session>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      });
+      setCsrfToken(value.csrfToken);
+      setSession(value);
+      setPassword("");
+    } catch (error) {
+      setError(errorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function logout() {
+    if (
+      busy ||
+      (dirty &&
+        !window.confirm(
+          "Kaydedilmemiş değişiklikleriniz silinecek. Çıkış yapılsın mı?",
+        ))
+    )
+      return;
+    setBusy(true);
+    try {
+      await apiRequest("/auth/logout", { method: "POST" });
+      setSession(null);
+      setCsrfToken("");
+      setDirty(false);
+    } catch (error) {
+      setError(errorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+  if (session === undefined)
+    return (
+      <main className="admin-app admin-loading">
+        <p role={error ? "alert" : "status"}>
+          {error || "Çalışma alanı hazırlanıyor…"}
+        </p>
+        {error && (
+          <button
+            className="admin-button"
+            onClick={() => setRetry((n) => n + 1)}
+          >
+            Yeniden dene
+          </button>
+        )}
+      </main>
+    );
+  if (!session)
+    return (
+      <main className="admin-app admin-login">
+        <section className="login-story">
+          <a href="/" className="admin-wordmark">
+            <img src="/assets/kaizen-logo-1-rb_d77ba5e7.png" alt="" />
+            KAIZEN<span>AİKİDO AKADEMİ</span>
+          </a>
+          <div>
+            <h1>
+              Her çalışmanın
+              <br />
+              bir hikâyesi var.
+            </h1>
+            <p>
+              Dojo'da yaşananları bir araya getirin.
+              <br />
+              Anları saklayın. Birlikte paylaşın.
+            </p>
+          </div>
+          <span className="login-footer">Nişantaşı, İstanbul</span>
+        </section>
+        <section className="login-form-region">
+          <form onSubmit={login}>
+            <LockKeyhole size={28} />
+            <h2>Tekrar hoş geldiniz.</h2>
+            <p>Etkinliklerinizi yönetmek için giriş yapın.</p>
+            <label>
+              Kullanıcı adı
+              <input
+                autoComplete="username"
+                required
+                maxLength={80}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </label>
+            <label>
+              Şifre
+              <input
+                autoComplete="current-password"
+                type="password"
+                required
+                maxLength={256}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+            {error && (
+              <p role="alert" className="admin-error">
+                {error}
+              </p>
+            )}
+            <button className="admin-button" disabled={busy}>
+              {busy ? "Giriş yapılıyor…" : "Çalışma alanına gir"}
+              <ArrowRight size={18} />
+            </button>
+            <a className="login-site" href="/">
+              Web sitesine dön <ArrowUpRight size={14} />
+            </a>
+          </form>
+        </section>
+      </main>
+    );
+  const match = window.location.pathname.match(
+    /^\/admin\/events\/([a-f\d]{24})\/?$/,
+  );
+  const valid = match || /^\/admin\/?$/.test(window.location.pathname);
+  return (
+    <div className="admin-app">
+      <aside className="admin-sidebar">
+        <a href="/admin" className="admin-wordmark">
+          <img src="/assets/kaizen-logo-1-rb_d77ba5e7.png" alt="" />
+          KAIZEN<span>AİKİDO AKADEMİ</span>
+        </a>
+        <nav aria-label="Yönetim">
+          <a href="/admin" aria-current="page">
+            <Layers size={18} />
+            Etkinlikler
+            <ArrowRight size={16} />
+          </a>
+        </nav>
+        <div className="sidebar-bottom">
+          <a href="/" target="_blank" rel="noreferrer">
+            Siteyi görüntüle
+            <ArrowUpRight size={17} />
+          </a>
+          <div className="admin-account">
+            <span>{session.username.slice(0, 1).toUpperCase()}</span>
+            <div>
+              <strong>{session.username}</strong>
+              <small>Yönetici</small>
+            </div>
+            <button
+              aria-label="Çıkış yap"
+              title="Çıkış yap"
+              disabled={busy}
+              onClick={logout}
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
+        </div>
+      </aside>
+      <main className="admin-main">
+        <header className="admin-topline">
+          <span>Kaizen / İçerik stüdyosu</span>
+          <span>Etkinlik yönetimi</span>
+        </header>
+        {error && (
+          <p role="alert" className="admin-error">
+            {error}
+          </p>
+        )}
+        {!valid ? (
+          <div className="admin-empty">
+            <h1>Sayfa bulunamadı.</h1>
+            <a href="/admin">Etkinliklere dön</a>
+          </div>
+        ) : match ? (
+          <EventEditor
+            key={match[1]}
+            eventId={match[1]}
+            onDirtyChange={setDirty}
+          />
+        ) : (
+          <EventList onDirtyChange={setDirty} />
+        )}
+      </main>
+    </div>
+  );
 }
