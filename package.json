@@ -2,12 +2,20 @@
   "name": "kaizen",
   "private": true,
   "type": "module",
-  "workspaces": ["api", "web"],
-  "engines": { "node": ">=22" },
+  "workspaces": [
+    "api",
+    "web"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "concurrently -k \"npm run dev -w api\" \"npm run dev -w web\"",
     "build": "npm run build -w web",
     "typecheck": "npm run typecheck -w api && npm run lint -w web",
     "test": "npm test -w api && npm test -w web"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
   }
 }

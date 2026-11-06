@@ -8,5 +8,24 @@
     "test": "tsx --test test/*.test.ts",
     "admin:create": "tsx --env-file-if-exists=.env tools/admin.ts",
     "media:cleanup": "tsx --env-file-if-exists=.env tools/maintenance.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1163.0",
+    "@aws-sdk/s3-request-presigner": "^3.1163.0",
+    "cookie": "^2.0.2",
+    "express": "^5.3.0",
+    "file-type": "^22.3.0",
+    "mongodb": "^7.8.0",
+    "nodemailer": "^10.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.25",
+    "@types/node": "^22.20.5",
+    "@types/nodemailer": "^8.0.2",
+    "@types/supertest": "^7.2.1",
+    "mongodb-memory-server": "^11.3.0",
+    "supertest": "^7.3.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }
