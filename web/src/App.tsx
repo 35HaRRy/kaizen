@@ -159,7 +159,7 @@ export default function App() {
           {/* Zone 1: Brand Wordmark */}
           <a href="#" className="flex items-center gap-3 shrink-0 group">
             <img 
-              src="/assets/aistudio/kaizen-logo-1-rb_d77ba5e7.png" 
+              src="/assets/kaizen-logo-1-rb_d77ba5e7.png" 
               alt="Kaizen Aikido Akademi Logo" 
               className="w-10 h-10 rounded-xl object-cover shadow-md"
               referrerPolicy="no-referrer"
@@ -315,7 +315,7 @@ export default function App() {
       <section className="relative overflow-hidden py-24 lg:py-32 bg-slate-900 text-white">
         <div className="absolute inset-0 z-0">
           <img 
-            src="/assets/aistudio/img-20260625-wa0004_9756bb37.png" 
+            src="/assets/img-20260625-wa0004_9756bb37.png" 
             alt="Kaizen Aikido Akademi" 
             className="w-full h-full object-cover object-center opacity-40 scale-105 transform transition-transform duration-1000"
             referrerPolicy="no-referrer"
@@ -392,7 +392,8 @@ export default function App() {
 
                 <div className="pt-2">
                   <a 
-                    href="tel:+905422513181"
+                    href="https://api.whatsapp.com/send/?phone=905422513181&text=Merhaba%2C+Aikido+dersleriniz+ile+ilgili+bilgi+almak+istiyordum.&type=phone_number&app_absent=0"
+                    target="_blank"
                     className="w-full py-3 rounded-xl bg-white text-slate-900 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-slate-100 transition-colors"
                   >
                     <Phone className="w-4 h-4 text-rose-600" />
@@ -472,7 +473,7 @@ export default function App() {
             <div className="lg:col-span-6">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 group">
                 <img 
-                  src="/assets/aistudio/img-20260625-wa0046_85a2777b.png" 
+                  src="/assets/img-20260625-wa0046_85a2777b.png" 
                   alt="Kaizen Aikido Akademi Eğitim" 
                   className="w-full h-[480px] object-cover group-hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"
@@ -515,7 +516,7 @@ export default function App() {
                 <div className="text-xs text-amber-500 font-bold uppercase tracking-wider mb-2">5 - 7 Yaş</div>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Minikler Grubu</h3>
                 <img 
-                  src="/assets/aistudio/image-2024-02-08-at-00.41.15_6b47c32d.jpeg" 
+                  src="/assets/image-2024-02-08-at-00.41.15_6b47c32d.jpeg" 
                   alt="Minikler Grubu" 
                   className="w-full h-48 rounded-xl object-cover mb-4 shadow-sm"
                   referrerPolicy="no-referrer"
@@ -540,7 +541,7 @@ export default function App() {
                 <div className="text-xs text-rose-500 font-bold uppercase tracking-wider mb-2">7 - 13 Yaş</div>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Çocuklar Grubu</h3>
                 <img 
-                  src="/assets/aistudio/kaizen-2_2b4bed4d.jpeg" 
+                  src="/assets/kaizen-2_2b4bed4d.jpeg" 
                   alt="Çocuklar Grubu" 
                   className="w-full h-48 rounded-xl object-cover mb-4 shadow-sm"
                   referrerPolicy="no-referrer"
@@ -565,7 +566,7 @@ export default function App() {
                 <div className="text-xs text-indigo-500 font-bold uppercase tracking-wider mb-2">13+ Yaş</div>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Yetişkinler Grubu</h3>
                 <img 
-                  src="/assets/aistudio/yei_kin_97b1c13e.png" 
+                  src="/assets/yei_kin_97b1c13e.png" 
                   alt="Yetişkinler Grubu" 
                   className="w-full h-48 rounded-xl object-cover mb-4 shadow-sm"
                   referrerPolicy="no-referrer"
@@ -875,7 +876,7 @@ export default function App() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <img 
-                src="/assets/aistudio/kaizen-logo-1-rb_d77ba5e7.png" 
+                src="/assets/kaizen-logo-1-rb_d77ba5e7.png" 
                 alt="Kaizen Aikido Akademi Logo" 
                 className="w-10 h-10 rounded-xl object-cover shadow-md"
                 referrerPolicy="no-referrer"
@@ -1125,7 +1126,7 @@ export default function App() {
                 <>
                   <div className="rounded-xl overflow-hidden mb-6 border border-slate-200 dark:border-slate-800 shadow-md">
                     <img 
-                      src="/assets/aistudio/osensei.s_d190593c.png" 
+                      src="/assets/osensei.s_d190593c.png" 
                       alt="O'Sensei Aikido" 
                       className="w-full h-64 sm:h-80 object-cover"
                       referrerPolicy="no-referrer"
@@ -1156,7 +1157,7 @@ export default function App() {
                 <>
                   <div className="rounded-xl overflow-hidden mb-6 border border-slate-200 dark:border-slate-800 shadow-md bg-slate-950 flex items-center justify-center">
                     <img 
-                      src="/assets/aistudio/morihei-ueshiba-2_7cf9debb.png" 
+                      src="/assets/morihei-ueshiba-2_7cf9debb.png" 
                       alt="O'Sensei Morihei Ueshiba" 
                       className="w-full max-h-[500px] object-contain"
                       referrerPolicy="no-referrer"
@@ -1178,7 +1179,7 @@ export default function App() {
                 <>
                   <div className="rounded-xl overflow-hidden mb-6 border border-slate-200 dark:border-slate-800 shadow-md">
                     <img 
-                      src="/assets/aistudio/tamura_edfbfd4d.webp" 
+                      src="/assets/tamura_edfbfd4d.webp" 
                       alt="Nobuyoshi Tamura Shihan" 
                       className="w-full h-64 sm:h-80 object-cover"
                       referrerPolicy="no-referrer"
