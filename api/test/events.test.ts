@@ -14,10 +14,10 @@ test('events validate media, real calendar dates and optimistic versions',async 
     await createAdmin(store.db,'sensei','password-is-long-123');
     const admin=await store.db.collection('admins').findOne({username:'sensei'});
     const mediaId=new ObjectId().toHexString();
-    await store.db.collection('uploads').insertOne({_id:new ObjectId(mediaId),adminId:admin!._id,state:'verified',createdAt:new Date(),media:{id:mediaId,key:'media/a.jpg',kind:'image',mime:'image/jpeg',size:200,originalName:'a.jpg',url:'https://media.test/a.jpg'}});
+    await store.db.collection('uploads').insertOne({_id:new ObjectId(mediaId),key:'media/a.jpg',adminId:admin!._id,state:'verified',createdAt:new Date(),media:{id:mediaId,key:'media/a.jpg',kind:'image',mime:'image/jpeg',size:200,originalName:'a.jpg',url:'https://media.test/a.jpg'}});
     const app=buildApp({db:store.db,config}), agent=request.agent(app);
     const login=await agent.post('/api/auth/login').set('Origin',config.origin).send({username:'sensei',password:'password-is-long-123'});
-    const send=(method:'post'|'put',path:string,body:unknown)=>agent[method](path).set('Origin',config.origin).set('X-CSRF-Token',login.body.csrfToken).send(body);
+    const send=(method:'post'|'put',path:string,body:object)=>agent[method](path).set('Origin',config.origin).set('X-CSRF-Token',login.body.csrfToken).send(body);
     const input={category:'Seminerler',date:'2026-11-06',title:'Seminer',description:'Birlikte çalışma',location:'Dojo',mediaIds:[mediaId],coverMediaId:mediaId};
     assert.equal((await send('post','/api/admin/events',{...input,date:'2026-02-30'})).status,400);
     assert.equal((await send('post','/api/admin/events',{...input,category:'Other'})).status,400);

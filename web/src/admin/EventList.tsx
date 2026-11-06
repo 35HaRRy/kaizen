@@ -1,0 +1,16 @@
+import { useEffect,useState } from 'react';
+import { Plus,ArrowUpRight,Trash2,CalendarDays,Image,MapPin } from 'lucide-react';
+import type { EventItem } from '../../../shared/events';
+import { apiRequest,errorMessage } from '../api';
+import { formatDate } from '../components/EventGallery';
+import { EventCreateDialog } from './EventCreateDialog';
+export function EventList(){
+  const [events,setEvents]=useState<EventItem[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[create,setCreate]=useState(false),[busy,setBusy]=useState<string>(),[retry,setRetry]=useState(0);
+  useEffect(()=>{let active=true;setLoading(true);setError('');apiRequest<{events:EventItem[]}>('/events').then(data=>{if(active)setEvents(data.events);}).catch(error=>{if(active)setError(errorMessage(error));}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[retry]);
+  async function remove(event:EventItem){if(busy||!window.confirm(`“${event.title}” etkinliği ve galeri bağlantıları silinecek. Emin misiniz?`))return;setBusy(event.id);setError('');try{await apiRequest(`/admin/events/${event.id}`,{method:'DELETE'});setEvents(events=>events.filter(e=>e.id!==event.id));}catch(error){setError(errorMessage(error));}finally{setBusy(undefined);}}
+  return <><div className="admin-page-heading"><div><h1>Dojo'nun hafızası.</h1><p>Seminerler, sınavlar ve birlikte biriktirdiğimiz anlar.</p></div><button className="admin-button" onClick={()=>setCreate(true)}><Plus size={18}/>Yeni Etkinlik Ekle</button></div><div className="admin-list-label"><h2>Etkinlikler</h2><span>{events.length} kayıt</span></div>
+    {error&&<p role="alert" className="admin-error">{error} <button className="text-button" onClick={()=>setRetry(n=>n+1)}>Yeniden dene</button></p>}
+    {loading?<div className="admin-empty" role="status">Etkinlikler yükleniyor…</div>:events.length===0?<div className="admin-empty"><CalendarDays size={38}/><h3>İlk hikâyenize yer açtık.</h3><p>Yeni bir etkinlik ekleyin. Fotoğraf ve videolarını kendi galerisinde bir araya getirin.</p><button className="admin-button secondary" onClick={()=>setCreate(true)}>İlk etkinliği ekle</button></div>:<div className="admin-event-list">{events.map(event=><article key={event.id} className="admin-event-row"><a href={`/admin/events/${event.id}`} className="event-row-main"><div className="event-row-cover">{event.coverMediaId?<img src={event.media.find(m=>m.id===event.coverMediaId)?.url} alt=""/>:<Image size={30}/>}</div><div className="event-row-copy"><span>{event.category}</span><h3>{event.title}</h3><p>{event.description}</p><div><span><CalendarDays size={14}/>{formatDate(event.date)}</span><span><MapPin size={14}/>{event.location}</span></div></div></a><div className="event-row-actions"><span>{event.media.length} medya</span><a href={`/admin/events/${event.id}`} aria-label={`${event.title} düzenle`}><ArrowUpRight size={20}/></a><button type="button" aria-label={`${event.title} sil`} title="Etkinliği sil" disabled={!!busy} onClick={()=>remove(event)}><Trash2 size={18}/></button></div></article>)}</div>}
+    {create&&<EventCreateDialog onClose={()=>setCreate(false)} onCreated={event=>{window.location.assign(`/admin/events/${event.id}`);}}/>}
+  </>;
+}

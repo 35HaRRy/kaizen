@@ -26,17 +26,13 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { categories, type EventItem } from '../../shared/events';
+import { apiRequest, errorMessage } from './api';
+import { PublicForm } from './components/PublicForm';
+import { Modal } from './components/Modal';
+import { EventGallery, formatDate } from './components/EventGallery';
 
 // Types
-interface EventItem {
-  id: string;
-  title: string;
-  category: 'Seminerler' | 'Sınavlar' | 'Çocuk Etkinlikleri' | 'Dojo Yaşamı';
-  date: string;
-  location: string;
-  description: string;
-  images: string[];
-}
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -45,25 +41,15 @@ export default function App() {
   const [activeEventCategory, setActiveEventCategory] = useState<string>('Tümü');
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [activeArticle, setActiveArticle] = useState<string | null>(null);
-  const [lightboxImageIndex, setLightboxImageIndex] = useState<number>(0);
-  
-  // Trial Form State
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: '',
-    phone: '',
-    email: '',
-    group: 'Yetişkinler (13+ yaş)',
-    notes: ''
-  });
-
-  // Contact Form State
-  const [contactSubmitted, setContactSubmitted] = useState(false);
-  const [contactData, setContactData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
+  const [eventsData,setEventsData] = useState<EventItem[]>([]);
+  const [eventsLoading,setEventsLoading] = useState(true);
+  const [eventsError,setEventsError] = useState('');
+  const [eventsRetry,setEventsRetry] = useState(0);
+  useEffect(()=>{
+    let active=true;setEventsLoading(true);setEventsError('');
+    apiRequest<{events:EventItem[]}>('/events').then(data=>{if(active)setEventsData(data.events);}).catch(error=>{if(active)setEventsError(errorMessage(error));}).finally(()=>{if(active)setEventsLoading(false);});
+    return()=>{active=false;};
+  },[eventsRetry]);
 
   // Toggle Dark Mode
   useEffect(() => {
@@ -74,80 +60,11 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // Events & Gallery Data based on Kaizen Aikido Akademi
-  const eventsData: EventItem[] = [
-    {
-      id: 'seminer-2024',
-      title: 'İstanbul Uluslararası Aikido Semineri',
-      category: 'Seminerler',
-      date: '15-16 Ekim 2024',
-      location: 'Nişantaşı Merkez Dojo',
-      description: 'Yurtiçi ve yurtdışından gelen üst düzey ustaların katılımıyla gerçekleştirilen geleneksel sonbahar seminerimiz. Temel omurgalar, atışlar ve bokken-jo çalışmaları yapıldı.',
-      images: [
-        '/src/assets/images/gallery_seminar_event_1793888355974.jpg',
-        '/src/assets/images/hero_aikido_dojo_action_1793888356317.jpg',
-        '/src/assets/images/gallery_exam_belt_1793888356752.jpg'
-      ]
-    },
-    {
-      id: 'kyu-sinavi-guz',
-      title: 'Güz Dönemi Kyu ve Dan Sınavları',
-      category: 'Sınavlar',
-      date: '20 Aralık 2024',
-      location: 'Nişantaşı Merkez Dojo',
-      description: 'Öğrencilerimizin aylar süren disiplinli çalışmaları sonucunda bir üst kemere geçiş heyecanını yaşadığı sınav günümüzden kareler. Tüm öğrencilerimizi tebrik ederiz.',
-      images: [
-        '/src/assets/images/gallery_exam_belt_1793888356752.jpg',
-        '/src/assets/images/hero_aikido_dojo_action_1793888356317.jpg'
-      ]
-    },
-    {
-      id: 'cocuk-senligi',
-      title: 'Minikler ve Çocuklar Aikido Şenliği',
-      category: 'Çocuk Etkinlikleri',
-      date: '12 Kasım 2024',
-      location: 'Nişantaşı Merkez Dojo',
-      description: '5-13 yaş aralığındaki minik samuraylarımızın koordinasyon oyunları, esneklik çalışmaları ve eğlenceli aikido gösterileriyle dolu neşeli günümüz.',
-      images: [
-        '/src/assets/images/gallery_kids_class_1793888357874.jpg',
-        '/src/assets/images/gallery_seminar_event_1793888355974.jpg'
-      ]
-    },
-    {
-      id: 'dojo-yasam',
-      title: 'Hafta Sonu Ortak Çalışmaları ve Silah Teknikleri',
-      category: 'Dojo Yaşamı',
-      date: 'Her Hafta Sonu',
-      location: 'Nişantaşı Merkez Dojo',
-      description: 'Bokken (ahşap kılıç) ve Jo (ahşap sopa) çalışmaları ile beden ve zihin bütünlüğünü pekiştirdiğimiz özel hafta sonu seanslarımızdan anlar.',
-      images: [
-        '/src/assets/images/hero_aikido_dojo_action_1793888356317.jpg',
-        '/src/assets/images/gallery_exam_belt_1793888356752.jpg',
-        '/src/assets/images/gallery_kids_class_1793888357874.jpg'
-      ]
-    }
-  ];
 
   const filteredEvents = activeEventCategory === 'Tümü' 
     ? eventsData 
     : eventsData.filter(e => e.category === activeEventCategory);
 
-  const handleTrialSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormSubmitted(true);
-    setTimeout(() => {
-      setFormSubmitted(false);
-      setTrialModalOpen(false);
-      setFormData({ fullName: '', phone: '', email: '', group: 'Yetişkinler (13+ yaş)', notes: '' });
-    }, 3000);
-  };
-
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setContactSubmitted(true);
-    setTimeout(() => setContactSubmitted(false), 4000);
-    setContactData({ name: '', email: '', message: '' });
-  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
@@ -677,9 +594,10 @@ export default function App() {
 
             {/* Category Filter Tabs */}
             <div className="flex flex-wrap items-center justify-center gap-2 pt-6">
-              {['Tümü', 'Seminerler', 'Sınavlar', 'Çocuk Etkinlikleri', 'Dojo Yaşamı'].map((cat) => (
+              {['Tümü', ...categories].map((cat) => (
                 <button
                   key={cat}
+                  aria-pressed={activeEventCategory===cat}
                   onClick={() => setActiveEventCategory(cat)}
                   className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
                     activeEventCategory === cat 
@@ -694,16 +612,21 @@ export default function App() {
           </div>
 
           {/* Event Cards Grid */}
+          {eventsLoading&&<p role="status">Etkinlikler yükleniyor…</p>}
+          {eventsError&&<p role="alert">{eventsError} <button onClick={()=>setEventsRetry(n=>n+1)} className="underline">Yeniden dene</button></p>}
+          {!eventsLoading&&!eventsError&&filteredEvents.length===0&&<p>Bu kategoride henüz bir etkinlik bulunmuyor.</p>}
           <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
             {filteredEvents.map((event) => (
               <div 
                 key={event.id}
-                onClick={() => { setSelectedEvent(event); setLightboxImageIndex(0); }}
+                role="button" tabIndex={0} aria-label={`${event.title} galerisini aç`}
+                onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setSelectedEvent(event);}}}
+                onClick={() => setSelectedEvent(event)}
                 className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all cursor-pointer group flex flex-col"
               >
                 <div className="relative h-64 overflow-hidden bg-slate-200 dark:bg-slate-800">
                   <img 
-                    src={event.images[0]} 
+                    src={event.media.find(media=>media.id===event.coverMediaId)?.url ?? '/assets/kaizen-logo-1-rb_d77ba5e7.png'}
                     alt={event.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
@@ -719,11 +642,11 @@ export default function App() {
                   <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
                     <div className="flex items-center gap-2 text-xs font-medium bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg">
                       <Calendar className="w-3.5 h-3.5 text-rose-400" />
-                      <span>{event.date}</span>
+                      <span>{formatDate(event.date)}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-rose-300 font-semibold bg-rose-600/80 backdrop-blur-md px-3 py-1.5 rounded-lg">
                       <Camera className="w-3.5 h-3.5" />
-                      <span>{event.images.length} Fotoğraf</span>
+                      <span>{event.media.filter(media=>media.kind==='image').length} Fotoğraf{event.media.some(media=>media.kind==='video')&&` · ${event.media.filter(media=>media.kind==='video').length} Video`}</span>
                     </div>
                   </div>
                 </div>
@@ -815,55 +738,7 @@ export default function App() {
             <div className="lg:col-span-6 bg-slate-50 dark:bg-slate-950 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Hızlı Mesaj Gönderin</h3>
               
-              {contactSubmitted ? (
-                <div className="p-6 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-center space-y-3">
-                  <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
-                  <h4 className="font-bold text-emerald-900 dark:text-emerald-200 text-lg">Mesajınız Alındı!</h4>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">En kısa sürede sizinle iletişime geçeceğiz.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleContactSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Adınız Soyadınız</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={contactData.name}
-                      onChange={(e) => setContactData({...contactData, name: e.target.value})}
-                      placeholder="Ahmet Yılmaz"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">E-posta Adresiniz</label>
-                    <input 
-                      type="email" 
-                      required
-                      value={contactData.email}
-                      onChange={(e) => setContactData({...contactData, email: e.target.value})}
-                      placeholder="ornek@mail.com"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Mesajınız</label>
-                    <textarea 
-                      rows={4}
-                      required
-                      value={contactData.message}
-                      onChange={(e) => setContactData({...contactData, message: e.target.value})}
-                      placeholder="Merhabalar, yetişkin grubu kayıt şartları hakkında bilgi almak istiyorum..."
-                      className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none"
-                    />
-                  </div>
-                  <button 
-                    type="submit"
-                    className="w-full py-4 text-center text-xs font-bold text-white bg-rose-600 rounded-xl hover:bg-rose-700 shadow-md shadow-rose-600/20 transition-all uppercase tracking-wider"
-                  >
-                    Mesaj Gönder
-                  </button>
-                </form>
-              )}
+              <PublicForm kind="contact"/>
             </div>
 
           </div>
@@ -925,14 +800,8 @@ export default function App() {
 
       {/* ÜCRETSİZ DENEME DERSİ MODAL */}
       {trialModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white dark:bg-slate-900 max-w-md w-full rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 relative">
-            <button 
-              onClick={() => setTrialModalOpen(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
-            >
-              <X className="w-5 h-5" />
-            </button>
+        <Modal title="Ücretsiz Deneme Dersi" onClose={()=>setTrialModalOpen(false)}>
+          <div className="p-6 sm:p-8">
 
             <div className="space-y-2 mb-6">
               <div className="w-12 h-12 rounded-xl bg-rose-600/10 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-2 font-bold">
@@ -944,157 +813,14 @@ export default function App() {
               </p>
             </div>
 
-            {formSubmitted ? (
-              <div className="p-6 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-center space-y-3">
-                <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
-                <h4 className="font-bold text-emerald-900 dark:text-emerald-200">Kayıt Talebiniz Alındı!</h4>
-                <p className="text-xs text-emerald-700 dark:text-emerald-300">Deneme dersi saatinizi kesinleştirmek için sizi arayacağız.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleTrialSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Ad Soyad</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                    placeholder="Adınız Soyadınız"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Telefon Numarası</label>
-                  <input 
-                    type="tel" 
-                    required
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    placeholder="0532 XXX XX XX"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">E-posta</label>
-                  <input 
-                    type="email" 
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    placeholder="ornek@mail.com"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Yaş / Eğitim Grubu</label>
-                  <select 
-                    value={formData.group}
-                    onChange={(e) => setFormData({...formData, group: e.target.value})}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-                  >
-                    <option>Minikler Grubu (5-7 Yaş)</option>
-                    <option>Çocuklar Grubu (7-13 Yaş)</option>
-                    <option>Yetişkinler Grubu (13+ Yaş)</option>
-                  </select>
-                </div>
-                <button 
-                  type="submit"
-                  className="w-full py-3.5 text-center text-xs font-bold text-white bg-rose-600 rounded-xl hover:bg-rose-700 shadow-md uppercase tracking-wider transition-all mt-2"
-                >
-                  Ücretsiz Randevu Oluştur
-                </button>
-              </form>
-            )}
+            <PublicForm kind="trial"/>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* IMMERSIVE EVENT LIGHTBOX MODAL (İnovatif Galeri Deneyimi) */}
       {selectedEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-black/90 backdrop-blur-md animate-fadeIn">
-          <div className="bg-slate-900 text-white max-w-5xl w-full max-h-[92vh] rounded-2xl shadow-2xl border border-slate-800 flex flex-col overflow-hidden">
-            
-            {/* Modal Header */}
-            <div className="p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-semibold text-rose-400 uppercase tracking-wider">{selectedEvent.category}</span>
-                <h3 className="text-xl sm:text-2xl font-bold text-white">{selectedEvent.title}</h3>
-              </div>
-              <button 
-                onClick={() => setSelectedEvent(null)}
-                className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Modal Body: Active Image & Thumbnail Strip */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-              
-              {/* Main Preview Container */}
-              <div className="relative h-[360px] sm:h-[480px] rounded-xl overflow-hidden bg-black flex items-center justify-center">
-                <img 
-                  src={selectedEvent.images[lightboxImageIndex]} 
-                  alt={selectedEvent.title} 
-                  className="max-h-full max-w-full object-contain"
-                  referrerPolicy="no-referrer"
-                />
-
-                {/* Navigation arrows if multiple images */}
-                {selectedEvent.images.length > 1 && (
-                  <>
-                    <button 
-                      onClick={() => setLightboxImageIndex((prev) => (prev === 0 ? selectedEvent.images.length - 1 : prev - 1))}
-                      className="absolute left-4 p-3 rounded-full bg-black/60 text-white hover:bg-black/90 backdrop-blur-md transition-all"
-                    >
-                      <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <button 
-                      onClick={() => setLightboxImageIndex((prev) => (prev === selectedEvent.images.length - 1 ? 0 : prev + 1))}
-                      className="absolute right-4 p-3 rounded-full bg-black/60 text-white hover:bg-black/90 backdrop-blur-md transition-all"
-                    >
-                      <ChevronRight className="w-6 h-6" />
-                    </button>
-                  </>
-                )}
-
-                <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300">
-                  {lightboxImageIndex + 1} / {selectedEvent.images.length} Fotoğraf
-                </div>
-              </div>
-
-              {/* Thumbnail Strip */}
-              {selectedEvent.images.length > 1 && (
-                <div className="flex items-center gap-3 overflow-x-auto pb-2">
-                  {selectedEvent.images.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setLightboxImageIndex(idx)}
-                      className={`relative w-24 h-16 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${
-                        lightboxImageIndex === idx ? 'border-rose-500 scale-105' : 'border-transparent opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={img} alt="Thumbnail" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Event Details */}
-              <div className="space-y-2 pt-2 border-t border-slate-800">
-                <div className="flex items-center gap-4 text-xs text-slate-400 font-medium">
-                  <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-rose-400" /> {selectedEvent.date}</span>
-                  <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-rose-400" /> {selectedEvent.location}</span>
-                </div>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  {selectedEvent.description}
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
+        <Modal title="Etkinlik galerisi" wide onClose={()=>setSelectedEvent(null)}><EventGallery event={selectedEvent}/></Modal>
       )}
 
       {/* ARTICLE READER MODAL (Aikido Subpages) */}

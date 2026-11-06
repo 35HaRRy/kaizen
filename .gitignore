@@ -7,3 +7,5 @@ coverage/
 .superpowers/
 .vercel/
 *.log
+.playwright-mcp/
+.playwright-cli/
