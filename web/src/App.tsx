@@ -39,6 +39,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [trialModalOpen, setTrialModalOpen] = useState(false);
   const [activeEventCategory, setActiveEventCategory] = useState<string>('Tümü');
+  const [eventPage, setEventPage] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [activeArticle, setActiveArticle] = useState<string | null>(null);
   const [eventsData,setEventsData] = useState<EventItem[]>([]);
@@ -64,6 +65,10 @@ export default function App() {
   const filteredEvents = activeEventCategory === 'Tümü' 
     ? eventsData 
     : eventsData.filter(e => e.category === activeEventCategory);
+  const EVENTS_PER_PAGE = 4;
+  const eventPageCount = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE);
+  const currentEventPage = Math.min(eventPage, Math.max(eventPageCount - 1, 0));
+  const pagedEvents = filteredEvents.slice(currentEventPage * EVENTS_PER_PAGE, (currentEventPage + 1) * EVENTS_PER_PAGE);
 
 
   return (
@@ -598,7 +603,7 @@ export default function App() {
                 <button
                   key={cat}
                   aria-pressed={activeEventCategory===cat}
-                  onClick={() => setActiveEventCategory(cat)}
+                  onClick={() => { setActiveEventCategory(cat); setEventPage(0); }}
                   className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
                     activeEventCategory === cat 
                       ? 'bg-rose-600 text-white shadow-md shadow-rose-600/20' 
@@ -616,7 +621,7 @@ export default function App() {
           {eventsError&&<p role="alert">{eventsError} <button onClick={()=>setEventsRetry(n=>n+1)} className="underline">Yeniden dene</button></p>}
           {!eventsLoading&&!eventsError&&filteredEvents.length===0&&<p>Bu kategoride henüz bir etkinlik bulunmuyor.</p>}
           <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {filteredEvents.map((event) => (
+            {pagedEvents.map((event) => (
               <div 
                 key={event.id}
                 role="button" tabIndex={0} aria-label={`${event.title} galerisini aç`}
@@ -673,6 +678,32 @@ export default function App() {
               </div>
             ))}
           </div>
+
+          {eventPageCount > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-10">
+              <button
+                type="button"
+                aria-label="Önceki sayfa"
+                disabled={currentEventPage === 0}
+                onClick={() => setEventPage(currentEventPage - 1)}
+                className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                Sayfa {currentEventPage + 1} / {eventPageCount}
+              </span>
+              <button
+                type="button"
+                aria-label="Sonraki sayfa"
+                disabled={currentEventPage >= eventPageCount - 1}
+                onClick={() => setEventPage(currentEventPage + 1)}
+                className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
         </div>
       </section>

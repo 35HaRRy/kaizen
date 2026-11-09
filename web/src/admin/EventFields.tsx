@@ -1,7 +1,7 @@
 import { Pencil } from "lucide-react";
 import { categories, type EventCategory } from "../../../shared/events";
 export interface EventFieldsValue {
-  category: EventCategory;
+  category: EventCategory | "";
   date: string;
   title: string;
   description: string;
@@ -65,6 +65,7 @@ export function EventFields({
               onChange({ ...value, category: e.target.value as EventCategory })
             }
           >
+            <option value="">Belirtilmemiş</option>
             {categories.map((category) => (
               <option key={category}>{category}</option>
             ))}

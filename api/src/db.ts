@@ -11,6 +11,7 @@ export async function ensureIndexes(db: Db) {
       .collection("limits")
       .createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
     db.collection("events").createIndex({ date: -1, _id: -1 }),
+    db.collection("messages").createIndex({ createdAt: -1, _id: -1 }),
     db.collection("uploads").createIndex({ key: 1 }, { unique: true }),
     db.collection("uploads").createIndex({ state: 1, createdAt: 1 }),
   ]);

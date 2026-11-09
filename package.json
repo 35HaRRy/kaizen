@@ -2,20 +2,23 @@
   "name": "kaizen",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "api",
-    "web"
-  ],
   "engines": {
-    "node": ">=22.12"
+    "node": ">=26.13.0"
   },
   "scripts": {
-    "dev": "concurrently -k \"npm run dev -w api\" \"npm run dev -w web\"",
-    "build": "npm run build -w web",
-    "typecheck": "npm run typecheck -w api && npm run lint -w web",
-    "test": "npm test -w api && npm test -w web"
+    "dev": "concurrently -k \"pnpm -C api dev\" \"pnpm -C web dev\"",
+    "build": "pnpm -C web build",
+    "typecheck": "pnpm -C api typecheck && pnpm -C web lint",
+    "test": "pnpm -C api test && pnpm -C web test"
   },
   "devDependencies": {
     "concurrently": "^10.0.6"
+  },
+  "allowScripts": {
+    "@google/genai@2.32.0": true,
+    "esbuild@0.28.2": true,
+    "esbuild@0.25.12": true,
+    "mongodb-memory-server@11.3.0": true,
+    "protobufjs@7.6.6": true
   }
 }

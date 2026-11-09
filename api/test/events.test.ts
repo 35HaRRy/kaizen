@@ -50,7 +50,7 @@ test("events validate media, real calendar dates and optimistic versions", async
         .set("X-CSRF-Token", login.body.csrfToken)
         .send(body);
     const input = {
-      category: "Seminerler",
+      category: "",
       date: "2026-11-06",
       title: "Seminer",
       description: "Birlikte çalışma",

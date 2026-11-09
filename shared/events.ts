@@ -16,7 +16,7 @@ export interface MediaItem {
 }
 export interface EventItem {
   id: string;
-  category: EventCategory;
+  category: EventCategory | "";
   date: string;
   title: string;
   description: string;
@@ -28,7 +28,7 @@ export interface EventItem {
   updatedAt: string;
 }
 export interface EventInput {
-  category: EventCategory;
+  category: EventCategory | "";
   date: string;
   title: string;
   description: string;

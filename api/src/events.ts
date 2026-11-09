@@ -14,7 +14,7 @@ export function objectId(value: unknown): ObjectId {
 export function validateEvent(body: any): EventInput {
   if (
     !body ||
-    !categories.includes(body.category) ||
+    (body.category !== "" && !categories.includes(body.category)) ||
     !/^\d{4}-\d{2}-\d{2}$/.test(body.date) ||
     !Number.isFinite(Date.parse(body.date)) ||
     new Date(body.date).toISOString().slice(0, 10) !== body.date

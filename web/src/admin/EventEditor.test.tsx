@@ -45,6 +45,26 @@ const event: EventItem = {
   updatedAt: "",
 };
 afterEach(() => vi.unstubAllGlobals());
+test("an imported event can keep its blank category while editing", async () => {
+  let saved: any;
+  vi.stubGlobal("fetch", vi.fn(async (_url, init) => {
+    if (init?.method === "PUT") {
+      saved = JSON.parse(init.body);
+      return new Response(JSON.stringify({ ...event, ...saved, version: 2 }));
+    }
+    return new Response(JSON.stringify({ ...event, category: "" }));
+  }));
+  render(<EventEditor eventId="abc" />);
+  const category = await screen.findByLabelText("Tür");
+  expect(category).toHaveValue("");
+  await userEvent.type(screen.getByLabelText("Başlık"), " düzenlendi");
+  await userEvent.click(screen.getByRole("button", { name: "Kaydet" }));
+  await waitFor(() => expect(saved.category).toBe(""));
+  expect(await screen.findByText("Etkinlik kaydedildi.")).toBeInTheDocument();
+  await userEvent.selectOptions(category, "Seminerler");
+  await userEvent.selectOptions(category, "");
+  expect(category).toHaveValue("");
+});
 test("save tracks dirty changes and preserves draft on version conflict", async () => {
   vi.stubGlobal(
     "fetch",

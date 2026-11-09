@@ -19,7 +19,7 @@ test("failed sending preserves input and never shows success", async () => {
       async () =>
         new Response(
           JSON.stringify({
-            error: { message: "E-posta servisi kullanılamıyor." },
+             error: { message: "Mesaj kaydedilemedi." },
           }),
           { status: 503 },
         ),
@@ -38,7 +38,7 @@ test("failed sending preserves input and never shows success", async () => {
   );
   await user.click(screen.getByRole("button", { name: "Mesaj Gönder" }));
   expect(await screen.findByRole("alert")).toHaveTextContent(
-    "E-posta servisi kullanılamıyor.",
+    "Mesaj kaydedilemedi.",
   );
   expect(screen.getByLabelText("Adınız Soyadınız")).toHaveValue("Ayşe");
   expect(screen.queryByText("Mesajınız Alındı!")).not.toBeInTheDocument();

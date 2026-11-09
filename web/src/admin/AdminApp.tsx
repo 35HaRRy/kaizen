@@ -5,10 +5,13 @@ import {
   LogOut,
   Layers,
   LockKeyhole,
+  Mail,
 } from "lucide-react";
 import { apiRequest, ApiError, errorMessage, setCsrfToken } from "../api";
 import { EventList } from "./EventList";
 import { EventEditor } from "./EventEditor";
+import { MessageList } from "./MessageList";
+import { MessageDetail } from "./MessageDetail";
 import "./admin.css";
 interface Session {
   username: string;
@@ -126,7 +129,7 @@ export default function AdminApp() {
           <form onSubmit={login}>
             <LockKeyhole size={28} />
             <h2>Tekrar hoş geldiniz.</h2>
-            <p>Etkinliklerinizi yönetmek için giriş yapın.</p>
+            <p>Etkinlikleri ve kullanıcı mesajlarını yönetmek için giriş yapın.</p>
             <label>
               Kullanıcı adı
               <input
@@ -167,7 +170,10 @@ export default function AdminApp() {
   const match = window.location.pathname.match(
     /^\/admin\/events\/([a-f\d]{24})\/?$/,
   );
-  const valid = match || /^\/admin\/?$/.test(window.location.pathname);
+  const messageMatch = window.location.pathname.match(/^\/admin\/messages\/([a-f\d]{24})\/?$/);
+  const messageList = /^\/admin\/messages\/?$/.test(window.location.pathname);
+  const isMessages = !!messageMatch || messageList;
+  const valid = match || isMessages || /^\/admin\/?$/.test(window.location.pathname);
   return (
     <div className="admin-app">
       <aside className="admin-sidebar">
@@ -176,9 +182,14 @@ export default function AdminApp() {
           KAIZEN<span>AİKİDO AKADEMİ</span>
         </a>
         <nav aria-label="Yönetim">
-          <a href="/admin" aria-current="page">
+          <a href="/admin" aria-current={valid && !isMessages ? "page" : undefined}>
             <Layers size={18} />
             Etkinlikler
+            <ArrowRight size={16} />
+          </a>
+          <a href="/admin/messages" aria-current={isMessages ? "page" : undefined}>
+            <Mail size={18} />
+            Kullanıcı mesajları
             <ArrowRight size={16} />
           </a>
         </nav>
@@ -207,7 +218,7 @@ export default function AdminApp() {
       <main className="admin-main">
         <header className="admin-topline">
           <span>Kaizen / İçerik stüdyosu</span>
-          <span>Etkinlik yönetimi</span>
+          <span>{isMessages ? "Mesaj yönetimi" : "Etkinlik yönetimi"}</span>
         </header>
         {error && (
           <p role="alert" className="admin-error">
@@ -219,6 +230,10 @@ export default function AdminApp() {
             <h1>Sayfa bulunamadı.</h1>
             <a href="/admin">Etkinliklere dön</a>
           </div>
+        ) : messageMatch ? (
+          <MessageDetail key={messageMatch[1]} messageId={messageMatch[1]} />
+        ) : messageList ? (
+          <MessageList />
         ) : match ? (
           <EventEditor
             key={match[1]}

@@ -6,6 +6,7 @@ import { errorHandler } from "./errors.js";
 import { registerEvents } from "./events.js";
 import { registerMedia } from "./media.js";
 import { registerForms, type FormServices } from "./forms.js";
+import { registerMessages } from "./messages.js";
 export function buildApp({
   db,
   config,
@@ -30,6 +31,7 @@ export function buildApp({
   registerEvents(app, db);
   registerMedia(app, db);
   registerForms(app, db, config, forms);
+  registerMessages(app, db);
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
   app.use((_req, res) =>
     res
