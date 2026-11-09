@@ -1,6 +1,7 @@
 # Kaizen Aikido Akademi
 
-React ziyaretçi sitesi ve `/admin` içerik yönetimi; aynı Vercel projesinde Express API. MongoDB VM'de, resim/video dosyaları Cloudflare R2'de tutulur.
+Kaizen Aikido Akademi ziyaretçi sitesi ve admin içerik yönetimi; aynı Vercel projesinde Express API.
+MongoDB VM'de, resim/video dosyaları Cloudflare R2'de tutulur.
 
 ## Yerel geliştirme
 
