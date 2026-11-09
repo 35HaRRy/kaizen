@@ -6,8 +6,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const src = join(here, "..", "..", "api", "src", "assets");
-const dest = join(here, "..", "api", "assets");
+const src = join(here, "..", "..", "api", "src");
+const dest = join(here, "..", "api");
 
 mkdirSync(dest, { recursive: true });
 for (const file of readdirSync(src)) {
