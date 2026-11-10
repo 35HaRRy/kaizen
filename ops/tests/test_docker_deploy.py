@@ -40,14 +40,18 @@ class DockerDeployTest(unittest.TestCase):
                 self.fail((result.stderr + result.stdout).replace(token, "[secret]").replace(password, "[password]"))
             return result
 
-        def wait_for(command):
+        def wait_for(command, container=None):
             deadline = time.monotonic() + 45
+            result = None
             while time.monotonic() < deadline:
                 result = command()
                 if result.returncode == 0:
                     return
                 time.sleep(0.25)
-            self.fail("Disposable dependency did not become ready")
+            details = result.stderr + result.stdout
+            if container:
+                details += docker("logs", "--tail", "50", container, check=False).stdout
+            self.fail("Disposable dependency did not become ready:\n" + details)
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "install"
@@ -72,13 +76,15 @@ class DockerDeployTest(unittest.TestCase):
                        "-e", "MONGO_INITDB_ROOT_USERNAME=test", "-e", f"MONGO_INITDB_ROOT_PASSWORD={password}", "mongo:8.0")
                 created_containers.append(mongo)
                 wait_for(lambda: docker("exec", mongo, "mongosh", "--quiet", "-u", "test", "-p", password,
-                                        "--authenticationDatabase", "admin", "--eval", "db.adminCommand({ping:1})", check=False))
+                                        "--authenticationDatabase", "admin", "--eval", "db.adminCommand({ping:1})", check=False),
+                         container=mongo)
                 docker("create", "--name", gateway, "--network", proxy, "--network-alias", "deploy.verify.test",
                        "caddy:2.11.4-alpine", "caddy", "run", "--config", "/etc/caddy/probe.Caddyfile")
                 created_containers.append(gateway)
                 docker("cp", probe_config, f"{gateway}:/etc/caddy/probe.Caddyfile")
                 docker("start", gateway)
-                wait_for(lambda: docker("cp", f"{gateway}:/data/caddy/pki/authorities/local/root.crt", ca, check=False))
+                wait_for(lambda: docker("cp", f"{gateway}:/data/caddy/pki/authorities/local/root.crt", ca, check=False),
+                         container=gateway)
                 ca.chmod(0o644)  # Test CA is public; the non-root API must be able to read it.
 
                 # Render the real runtime config, then isolate only network names for this run.
