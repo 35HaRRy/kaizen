@@ -9,3 +9,4 @@ coverage/
 *.log
 .playwright-mcp/
 .playwright-cli/
+__pycache__/

@@ -284,12 +284,15 @@ export default function App() {
             <div className="lg:col-span-4">
               <div className="p-8 rounded-2xl bg-white/10 dark:bg-slate-900/80 backdrop-blur-xl border border-white/10 dark:border-slate-800 space-y-6 text-left shadow-2xl">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-rose-600/20 flex items-center justify-center text-rose-400 font-bold">
-                    道場
-                  </div>
+                  <img
+                    src="/assets/kaizen-logo-1-rb_d77ba5e7.png"
+                    alt="Kaizen Aikido Akademi Logo"
+                    className="w-12 h-12 rounded-xl object-cover shrink-0 shadow-md"
+                    referrerPolicy="no-referrer"
+                  />
                   <div>
-                    <h3 className="font-bold text-white text-base">Nişantaşı Dojo</h3>
-                    <p className="text-xs text-slate-400">Rumeli Caddesi, Villa İş Hanı No: 4/6</p>
+                    <h3 className="font-bold text-white text-base">Kaizen Aikido Akademi</h3>
+                    <p className="text-xs text-slate-400">Rumeli Caddesi, Villa İş Hanı No: 4/6 Nişantaşı Şişli / İstanbul</p>
                   </div>
                 </div>
 
@@ -319,7 +322,7 @@ export default function App() {
                     className="w-full py-3 rounded-xl bg-white text-slate-900 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-slate-100 transition-colors"
                   >
                     <Phone className="w-4 h-4 text-rose-600" />
-                    Hemen Arayın
+                    Hemen soru sorun
                   </a>
                 </div>
               </div>

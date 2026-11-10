@@ -1,0 +1,4 @@
+{$KAIZEN_API_DOMAIN} {
+	reverse_proxy kaizen-api:3001
+	import access-log
+}

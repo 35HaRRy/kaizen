@@ -1,6 +1,6 @@
 # Kaizen Aikido Akademi
 
-Kaizen Aikido Akademi ziyaretçi sitesi ve admin içerik yönetimi; aynı Vercel projesinde Express API.
+Kaizen Aikido Akademi ziyaretçi sitesi ve admin içerik yönetimi; web Vercel'de, Express API Oracle instance üzerinde Docker'da çalışır.
 MongoDB VM'de, resim/video dosyaları Cloudflare R2'de tutulur.
 
 ## Yerel geliştirme
@@ -37,8 +37,8 @@ Var olan kullanıcı değiştirilmez. Herkese açık kayıt/parola sıfırlama y
 ## MongoDB: VM kurulumu
 
 1. Yeni `kaizen` veritabanı için ayrı, yalnızca bu DB'ye `readWrite` yetkili uygulama kullanıcısı oluşturun. Root/admin bağlantısını uygulamaya vermeyin.
-2. MongoDB kimlik doğrulamasını ve geçerli sunucu sertifikasıyla TLS'yi etkinleştirin. URI'de özel karakterli kullanıcı/parola URL-encode edilmelidir; örneğin `mongodb://USER:PASSWORD@db.example.com:27017/kaizen?authSource=kaizen&tls=true`.
-3. VM güvenlik duvarını daraltın. MongoDB'yi kimlik doğrulamasız veya TLS olmadan internete açmayın. Vercel'in dinamik çıkış adresleri için güvenli erişim stratejisi belirleyin; sabit egress gereksinimi ek plan/ağ altyapısı gerektirebilir. Yerel SSH tüneli Vercel'de kalıcı bağlantı yöntemi değildir.
+2. Bu taşıma için mevcut kimlik doğrulama/TLS ayarlarını değiştirmeyin; mevcut URI'yi koruyun. URI'de özel karakterli kullanıcı/parola URL-encode edilmelidir. IP filtresi trafiği şifrelemez; TLS kapalıysa bu ayrı bir güvenlik değerlendirmesidir.
+3. Mevcut MongoDB URI'si, public portu, IP izinleri ve firewall/TLS ayarları değiştirilmez. API container'ının bu URI'ye erişimini ayrıca doğrulayın; [Docker/CI-CD rehberine](ops/README.md) bakın.
 4. Günlük DB yedeği ve geri yükleme denemesi kurun. R2 dosyaları ile DB metadatasının birlikte geri yüklenebilmesi gerekir; yalnızca DB yedeği dosyaları geri getirmez.
 
 ## Cloudflare R2
@@ -74,7 +74,7 @@ R2 ücretsiz kotası sınırsız değildir. Depolama ve işlem tüketimini panel
 - İletişim ve ücretsiz deneme dersi formları MongoDB `messages` koleksiyonuna form türü, doldurulan alanlar, tarih ve `isRead: false` ile kaydedilir. Başarı yalnızca kayıt tamamlandıktan sonra döner; e-posta gönderimi ve SMTP yapılandırması yoktur. Eski SMTP ortam değişkenleri dağıtım ayarlarından kaldırılabilir.
 - Admin panelinde `/admin/messages` altındaki **Kullanıcı mesajları** sayfası en yeni kayıtları önce gösterir. Detay açılınca mesaj tüm yöneticiler için ortak olarak okunmuş işaretlenir. Mesajlar otomatik silinmez; erişim yalnızca yönetici oturumuyla mümkündür.
 - “Ücretsiz Randevu Oluştur”, kesin saat ayırmaz, deneme dersi talebidir.
-- IP başına iki form toplam 15 dakikada 5 istek; login 15 dakikada 10 deneme. IP yalnızca limit anahtarında hash olarak tutulur; TTL indeksleri süreli kayıtları temizler. Yerelde forwarded IP header'larına güvenilmez; Vercel'de platformun yazdığı `x-real-ip` kullanılır.
+- IP başına iki form toplam 15 dakikada 5 istek; login 15 dakikada 10 deneme. IP yalnızca limit anahtarında hash olarak tutulur; TTL indeksleri süreli kayıtları temizler. Yerelde forwarded IP header'larına güvenilmez; üretimde Vercel origin secret doğrulandıktan sonra platformun yazdığı `x-real-ip` kullanılır.
 
 ## Bakım
 
@@ -101,7 +101,7 @@ Kaydetmeden kapatılan yüklemeler ve etkinlikten çıkarılan dosyalar anında 
 pnpm -C api media:cleanup
 ```
 
-VM'de projeyi/Node bağımlılıklarını kurup API ortamını güvenli dosyada tanımlayın ve cron/systemd timer ile her gün çalıştırın. Örnek cron (gerçek proje yolunu ve Node PATH'ini uyarlayın):
+VM'de günlük cron/systemd timer kurun. Docker üretiminde derlenmiş bakım komutu ve cron örneği [kurulum rehberindedir](ops/README.md); aşağıdaki komut native Node kurulumu içindir:
 
 ```cron
 15 3 * * * cd /srv/kaizen && /usr/bin/pnpm -C api media:cleanup >> /var/log/kaizen-media-cleanup.log 2>&1
@@ -109,11 +109,11 @@ VM'de projeyi/Node bağımlılıklarını kurup API ortamını güvenli dosyada 
 
 `api/.env` CLI tarafından yüklenir; Vercel ortam değişkenleri VM'e otomatik aktarılmaz. Bakım çalışmazsa dosyalar birikir; DB TTL indeksi R2 dosyasını silemez. Staging prefix'ine ek olarak birkaç günlük R2 lifecycle kuralı koyabilirsiniz; `media/` prefix'ine yaş bazlı toplu silme kuralı koymayın.
 
-## Vercel: tek proje
+## Üretim: Vercel web + Docker API
 
-1. Repo'yu bağlayın, Root Directory=`web`, framework=Vite seçin. Root dışındaki dosyaların build'e dahil edilmesi ayarını açın; `/api` ve `/shared` bu root'un dışındadır.
-2. Node runtime **22.x** seçin. `web/vercel.json` üst kökteki lockfile ile `npm ci`, frontend build ve rewrite'ları tanımlar. Function `/web/api/index.ts` backend'i içe aktarır; tüm istekler `/api` önekini korur.
-3. `api/.env.example` değişkenlerini Vercel'e girin; `PORT` gerekmez. `APP_ORIGIN=https://gercek-domain` olmalı. Frontend için `VITE_TURNSTILE_SITE_KEY` build sırasında verilmelidir.
+1. Önce [kaynak kodsuz sunucu ve otomatik CI/CD kurulumunu](ops/README.md) tamamlayın. `main` push'u test → çok mimarili GHCR image → SSH deploy/otomatik rollback akışını çalıştırır; sunucuda clone/build yoktur. Ortak gateway kaynakları `hayrihabip.com/DevOps/gateway/`, Kaizen yönlendirmeleri bu repoda `ops/gateway/` altındadır.
+2. Vercel Root Directory=`web`, framework=Vite; root dışındaki `shared/` build'e dahil olmalıdır. Node sürümü repo gereksinimiyle uyumlu olmalı. `web/vercel.json` artık backend Function çalıştırmaz; `/api/*` isteklerini harici HTTPS API'ye iletir.
+3. Vercel'e `API_ORIGIN=https://api.gercek-domain`, API ile aynı `ORIGIN_SECRET` ve `VITE_TURNSTILE_SITE_KEY` girin. MongoDB/R2/Turnstile secret'ları yalnız API ortamındadır; Vercel'den kaldırın. API'deki `APP_ORIGIN=https://gercek-web-domain` olmalıdır.
 4. Preview deployment'a gerçek domain'den farklı `APP_ORIGIN`, uygun Turnstile hostname ve tercihen ayrı test DB/bucket tanımlayın. Üretim verisiyle preview testi yapmayın.
 5. Yayından sonra `/api/health`, `/api/events`, `/admin`, `/admin/messages` ve direkt `/admin/events/ID` ile `/admin/messages/ID` navigasyonunu kontrol edin. Login cookie'sinde Secure/HttpOnly/SameSite, çıkış sonrası 401, gerçek resim/video yükleme, sıralama ve iki formdan kaydedilen mesajların panelde görünmesini ve detay açılınca okunmuş olmasını kontrol edin.
 

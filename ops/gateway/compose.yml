@@ -1,0 +1,20 @@
+# Override for the INDEPENDENT shared gateway, not the API Compose project.
+services:
+  gateway:
+    environment:
+      KAIZEN_API_DOMAIN: ${KAIZEN_API_DOMAIN:?set KAIZEN_API_DOMAIN to the API hostname}
+    volumes:
+      - type: bind
+        source: ${KAIZEN_GATEWAY_CONFIG:?set absolute path to ops/gateway/kaizen.caddy}
+        target: /etc/caddy/sites-enabled/kaizen.caddy
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - default
+      - kaizen-proxy
+
+networks:
+  kaizen-proxy:
+    external: true
+    name: gateway-kaizen
