@@ -73,7 +73,7 @@ class DockerDeployTest(unittest.TestCase):
                     created_networks.append(name)
                 docker("run", "-d", "--name", mongo, "--network", database,
                        "--tmpfs", "/data/db", "--tmpfs", "/data/configdb",
-                       "-e", "MONGO_INITDB_ROOT_USERNAME=test", "-e", f"MONGO_INITDB_ROOT_PASSWORD={password}", "mongo:8.0")
+                       "-e", "MONGO_INITDB_ROOT_USERNAME=test", "-e", f"MONGO_INITDB_ROOT_PASSWORD={password}", "mongo:8.2")
                 created_containers.append(mongo)
                 wait_for(lambda: docker("exec", mongo, "mongosh", "--quiet", "-u", "test", "-p", password,
                                         "--authenticationDatabase", "admin", "--eval", "db.adminCommand({ping:1})", check=False),
