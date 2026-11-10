@@ -7,10 +7,10 @@ firewall ve TLS ayarları **değiştirilmez**.
 
 ## Akış
 
-`main` push → test/typecheck/build + Linux deploy testleri + gerçek Docker
+`master` push → test/typecheck/build + Linux deploy testleri + gerçek Docker
 rollback testi → amd64/arm64 image → GHCR → release paketi → SSH/SCP → otomatik
 deploy. PR/development kontrolleri üretime erişmez. `workflow_dispatch` yalnız
-`main` üzerinde yayın yapar. Vercel web yayını mevcut entegrasyonla devam eder.
+`master` üzerinde yayın yapar. Vercel web yayını mevcut entegrasyonla devam eder.
 
 `ops/compose.yml` yalnız image çalıştırır; build içermez. `compose.build.yml`
 sadece yerel/CI build alternatifi olup sunucu paketine girmez. `package.sh`
@@ -73,11 +73,11 @@ Host key fingerprint'ini sunucu konsolundan doğrulayın; deploy sırasında kö
 `ssh-keyscan`/`StrictHostKeyChecking=no` kullanılmaz. Standart dışı SSH portunda
 known_hosts kaydı `[host]:port` biçiminde olmalı. Secrets'ı PR/build ortamına veya
 repoya koymayın. Tam otomatik yayın için production ortamında manuel reviewer
-bekletmeyin; erişimi main branch ile sınırlandırın.
+bekletmeyin; erişimi master branch ile sınırlandırın.
 
 ## 3. İlk paket ve ortak gateway (bir kez)
 
-Önce `main` üzerinde CI'ın image ve `api-release-SHA` artifact'ını üretmesini
+Önce `master` üzerinde CI'ın image ve `api-release-SHA` artifact'ını üretmesini
 sağlayın. Sunucu hazırlığı henüz bitmediyse ilk deploy job'ının başarısız olması
 normaldir; hazırlık bitince **yalnız failed deploy job'ını** yeniden çalıştırın.
 Publish başarılı olduğu için mevcut artifact/digest tekrar kullanılabilir.
@@ -122,7 +122,7 @@ upstream'e bağlı değildir. Caddy public sertifikayı otomatik alır/yeniler.
 
 ## 4. Otomatik deploy ve rollback
 
-Hazırlık sonrası failed deploy job'ını tekrar çalıştırın. Sonraki main push'ları
+Hazırlık sonrası failed deploy job'ını tekrar çalıştırın. Sonraki master push'ları
 otomatik yayımlanır. Workflow eski commit'leri atlar; deployment'lar concurrency
 grubu ve sunucuda `flock` ile seri çalışır. Release'in checksum/digest/path
 kontrolleri yapılır, image önceden çekilir, `--no-build --pull never --wait`

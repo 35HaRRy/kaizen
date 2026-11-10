@@ -111,7 +111,7 @@ VM'de günlük cron/systemd timer kurun. Docker üretiminde derlenmiş bakım ko
 
 ## Üretim: Vercel web + Docker API
 
-1. Önce [kaynak kodsuz sunucu ve otomatik CI/CD kurulumunu](ops/README.md) tamamlayın. `main` push'u test → çok mimarili GHCR image → SSH deploy/otomatik rollback akışını çalıştırır; sunucuda clone/build yoktur. Ortak gateway kaynakları `hayrihabip.com/DevOps/gateway/`, Kaizen yönlendirmeleri bu repoda `ops/gateway/` altındadır.
+1. Önce [kaynak kodsuz sunucu ve otomatik CI/CD kurulumunu](ops/README.md) tamamlayın. `master` push'u test → çok mimarili GHCR image → SSH deploy/otomatik rollback akışını çalıştırır; sunucuda clone/build yoktur. Ortak gateway kaynakları `hayrihabip.com/DevOps/gateway/`, Kaizen yönlendirmeleri bu repoda `ops/gateway/` altındadır.
 2. Vercel Root Directory=`web`, framework=Vite; root dışındaki `shared/` build'e dahil olmalıdır. Node sürümü repo gereksinimiyle uyumlu olmalı. `web/vercel.json` artık backend Function çalıştırmaz; `/api/*` isteklerini harici HTTPS API'ye iletir.
 3. Vercel'e `API_ORIGIN=https://api.gercek-domain`, API ile aynı `ORIGIN_SECRET` ve `VITE_TURNSTILE_SITE_KEY` girin. MongoDB/R2/Turnstile secret'ları yalnız API ortamındadır; Vercel'den kaldırın. API'deki `APP_ORIGIN=https://gercek-web-domain` olmalıdır.
 4. Preview deployment'a gerçek domain'den farklı `APP_ORIGIN`, uygun Turnstile hostname ve tercihen ayrı test DB/bucket tanımlayın. Üretim verisiyle preview testi yapmayın.
