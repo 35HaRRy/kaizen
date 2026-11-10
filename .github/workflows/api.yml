@@ -98,7 +98,10 @@ jobs:
           assert re.fullmatch(r'[a-z_][a-z0-9_-]*', env['DEPLOY_USER'])
           assert env['DEPLOY_PORT'].isdigit() and 1 <= int(env['DEPLOY_PORT']) <= 65535
           assert re.fullmatch(r'(/[a-zA-Z0-9_-]+)+', env['DEPLOY_ROOT'])
-          assert re.fullmatch(r'https://[a-zA-Z0-9][a-zA-Z0-9.-]*(?::[0-9]{1,5})?', env['DEPLOY_ORIGIN'])
+          origin = env['DEPLOY_ORIGIN'].rstrip('/')
+          assert re.fullmatch(r'https://[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?(:[0-9]{1,5})?', origin)
+          with open(env['GITHUB_ENV'], 'a') as out:
+              out.write(f'DEPLOY_ORIGIN={origin}\n')
           PY
       - name: Skip superseded commits
         id: freshness
