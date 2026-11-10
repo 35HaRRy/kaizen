@@ -10,9 +10,9 @@ export async function rateLimit(
   scope: string,
   max: number,
 ) {
-  // Vercel overwrites x-real-ip; do not trust client-supplied forwarded headers locally.
-  const ip = config.vercel
-    ? (req.get("x-real-ip") ?? "unknown")
+  // buildApp authenticates the Vercel origin secret and validates this IP first.
+  const ip = config.originSecret
+    ? req.get("x-real-ip")!
     : (req.socket.remoteAddress ?? "unknown");
   const window = Math.floor(Date.now() / 900_000);
   const _id = createHash("sha256")

@@ -9,5 +9,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["src", "tools", "test", "../shared", "../web/api"]
+  "include": ["src", "tools", "test", "../shared"]
 }

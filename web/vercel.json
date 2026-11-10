@@ -2,35 +2,38 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "cd .. && corepack pnpm install --frozen-lockfile",
-  "buildCommand": "node scripts/copy-api-assets.mjs && cd .. && corepack pnpm --filter kaizen run build",
+  "buildCommand": "cd .. && corepack pnpm --filter kaizen run build",
   "outputDirectory": "dist",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/index"
+      "src": "/(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+      },
+      "continue": true
     },
     {
-      "source": "/admin/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/admin",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
+      "src": "^/api(?:/(.*))?$",
+      "dest": "${API_ORIGIN}/api/$1",
+      "env": ["API_ORIGIN"],
+      "respectOriginCacheControl": false,
+      "transforms": [
         {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
+          "type": "request.headers",
+          "op": "set",
+          "target": { "key": "x-origin-secret" },
+          "args": "$ORIGIN_SECRET",
+          "env": ["ORIGIN_SECRET"]
         }
       ]
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/admin(?:/.*)?$",
+      "dest": "/index.html"
     }
   ]
 }

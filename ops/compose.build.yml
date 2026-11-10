@@ -1,0 +1,6 @@
+# Local/CI build only. Never deliver this override to the production server.
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: api/Dockerfile

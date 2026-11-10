@@ -1,0 +1,41 @@
+name: kaizen
+
+services:
+  api:
+    image: ${KAIZEN_API_IMAGE:?set the digest-pinned API image from the release}
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "3001"
+      MONGODB_URI: ${MONGODB_URI:?set MONGODB_URI to the existing private database}
+      MONGODB_DB: ${MONGODB_DB:?set MONGODB_DB}
+      APP_ORIGIN: ${APP_ORIGIN:?set APP_ORIGIN to the Vercel site's HTTPS origin}
+      ORIGIN_SECRET: ${ORIGIN_SECRET:?set the same secret in API and Vercel}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
+      R2_ENDPOINT: ${R2_ENDPOINT:-}
+      R2_BUCKET: ${R2_BUCKET:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_PUBLIC_ORIGIN: ${R2_PUBLIC_ORIGIN:-}
+    networks:
+      proxy:
+        aliases: [kaizen-api]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/api/health', {signal: AbortSignal.timeout(4000)}).then(async r => { if (!r.ok || !(await r.json()).ok) process.exit(1); }).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+networks:
+  proxy:
+    external: true
+    name: gateway-kaizen

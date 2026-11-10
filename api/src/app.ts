@@ -1,8 +1,10 @@
 import express from "express";
+import { timingSafeEqual } from "node:crypto";
+import { isIP } from "node:net";
 import type { Db } from "mongodb";
 import type { Config } from "./config.js";
 import { registerAuth } from "./auth.js";
-import { errorHandler } from "./errors.js";
+import { errorHandler, HttpError } from "./errors.js";
 import { registerEvents } from "./events.js";
 import { registerMedia } from "./media.js";
 import { registerForms, type FormServices } from "./forms.js";
@@ -24,6 +26,17 @@ export function buildApp({
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "no-referrer",
     });
+    next();
+  });
+  app.use("/api", (req, _res, next) => {
+    if (config.originSecret && !(req.path === "/health" && ["GET", "HEAD"].includes(req.method))) {
+      const supplied = Buffer.from(req.get("x-origin-secret") ?? "");
+      const expected = Buffer.from(config.originSecret);
+      if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected))
+        throw new HttpError(403, "PROXY", "İstek kaynağına izin verilmiyor.");
+      if (!isIP(req.get("x-real-ip") ?? ""))
+        throw new HttpError(400, "PROXY_IP", "Geçersiz istemci adresi.");
+    }
     next();
   });
   app.use(express.json({ limit: "32kb" }));
