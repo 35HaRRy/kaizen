@@ -2,7 +2,7 @@ name: Kaizen CI and API deployment
 
 on:
   push:
-    branches: [main, development]
+    branches: [master, development]
   pull_request:
   workflow_dispatch:
 
@@ -35,7 +35,7 @@ jobs:
 
   publish:
     needs: checks
-    if: github.repository_owner == '35HaRRy' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.repository_owner == '35HaRRy' && github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -106,11 +106,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          current="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)"
+          current="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/master" --jq .object.sha)"
           if [[ "$current" == "$GITHUB_SHA" ]]; then
             echo 'deploy=true' >> "$GITHUB_OUTPUT"
           else
-            echo 'Main advanced; skipping this older deployment'
+            echo 'master advanced; skipping this older deployment'
             echo 'deploy=false' >> "$GITHUB_OUTPUT"
           fi
       - name: Install SSH identity and verified host keys
