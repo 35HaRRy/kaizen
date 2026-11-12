@@ -718,7 +718,7 @@ export default function App() {
             
             <div className="lg:col-span-6 space-y-6">              
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                Nişantaşı Dojo'muzu Ziyaret Edin
+                Nişantaşı'nda dojo'muzu ziyaret edin
               </h2>
 
               <div className="space-y-4 pt-4">
@@ -770,7 +770,7 @@ export default function App() {
             </div>
 
             <div className="lg:col-span-6 bg-slate-50 dark:bg-slate-950 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Hızlı Mesaj Gönderin</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Hızlı mesaj gönderin</h3>
               
               <PublicForm kind="contact"/>
             </div>
