@@ -1,6 +1,6 @@
 # Kaizen Aikido Akademi
 
-Kaizen Aikido Akademi ziyaretçi sitesi ve admin içerik yönetimi; web Vercel'de, Express API Oracle instance üzerinde Docker'da çalışır.
+Kaizen Aikido Akademi ziyaretçi sitesi ve admin içerik yönetimi. Web Vercel'de, Express API Oracle instance üzerinde Docker'da çalışır.
 MongoDB VM'de, resim/video dosyaları Cloudflare R2'de tutulur.
 
 ## Yerel geliştirme
