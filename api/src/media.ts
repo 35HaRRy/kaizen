@@ -13,6 +13,7 @@ import { fileTypeFromBuffer } from "file-type";
 import { HttpError, text } from "./errors.js";
 import { objectId } from "./events.js";
 import type { MediaItem } from "../../shared/events.js";
+import { publicMedia } from "./media-url.js";
 export interface ObjectStorage {
   publicOrigin: string;
   sign(
@@ -141,7 +142,8 @@ export async function completeUpload(
   const uploads = db.collection("uploads"),
     record = await uploads.findOne({ _id: id, adminId });
   if (!record) throw new HttpError(404, "UPLOAD", "Dosya bulunamadı.");
-  if (["verified", "attached"].includes(record.state)) return record.media;
+  if (["verified", "attached"].includes(record.state))
+    return publicMedia(record.media, storage.publicOrigin);
   if (
     record.state !== "pending" ||
     Date.now() - record.createdAt.getTime() > 3_600_000

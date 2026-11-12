@@ -6,6 +6,7 @@ import {
   type MediaItem,
 } from "../../shared/events.js";
 import { HttpError, text } from "./errors.js";
+import { publicMedia } from "./media-url.js";
 export function objectId(value: unknown): ObjectId {
   if (typeof value !== "string" || !/^[a-f\d]{24}$/.test(value))
     throw new HttpError(404, "NOT_FOUND", "Kayıt bulunamadı.");
@@ -54,7 +55,11 @@ export function registerEvents(app: Express, db: Db) {
     uploads = db.collection("uploads");
   const dto = (doc: any) => {
     const { _id, ...rest } = doc;
-    return { ...rest, id: _id.toHexString() };
+    return {
+      ...rest,
+      media: rest.media.map((media: MediaItem) => publicMedia(media)),
+      id: _id.toHexString(),
+    };
   };
   app.get("/api/events", async (req, res) => {
     const category = req.query.category;

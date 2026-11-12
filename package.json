@@ -9,7 +9,7 @@
     "dev": "concurrently -k \"pnpm -C api dev\" \"pnpm -C web dev\"",
     "build": "pnpm -C web build",
     "typecheck": "pnpm -C api typecheck && pnpm -C web lint",
-    "test": "pnpm -C api test && pnpm -C web test"
+    "test": "node --test ops/media-worker/worker.test.mjs && pnpm -C api test && pnpm -C web test"
   },
   "devDependencies": {
     "concurrently": "^10.0.6"

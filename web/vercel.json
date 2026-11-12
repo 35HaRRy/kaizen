@@ -15,7 +15,7 @@
     },
     {
       "src": "^/api(?:/(.*))?$",
-      "dest": "${API_ORIGIN}/api/$1",
+      "dest": "https://kaizen.hayrihabip.com/api/$1",
       "env": ["API_ORIGIN"],
       "respectOriginCacheControl": false,
       "transforms": [

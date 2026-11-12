@@ -11,6 +11,7 @@ import type { EventItem } from "../../../shared/events";
 import { apiRequest, errorMessage } from "../api";
 import { formatDate } from "../components/EventGallery";
 import { EventCreateDialog } from "./EventCreateDialog";
+import { MediaImage } from "../components/MediaImage";
 export function EventList({
   onDirtyChange,
 }: {
@@ -112,7 +113,7 @@ export function EventList({
               <a href={`/admin/events/${event.id}`} className="event-row-main">
                 <div className="event-row-cover">
                   {event.coverMediaId ? (
-                    <img
+                    <MediaImage
                       src={
                         event.media.find((m) => m.id === event.coverMediaId)
                           ?.url
