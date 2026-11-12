@@ -46,6 +46,7 @@ Var olan kullanıcı değiştirilmez. Herkese açık kayıt/parola sıfırlama y
 1. Standard sınıfında bucket oluşturun. `R2_BUCKET` adını girin; bu bucket'a sınırlı object read/write token üretin.
 2. S3 endpoint ve access/secret anahtarlarını yalnızca API ortamına ekleyin.
 3. Public medya için kendi Cloudflare alan adınızı bağlayın (`R2_PUBLIC_ORIGIN`, ör. `https://media.example.com`). Canlıda rate-limitli geliştirme `r2.dev` adresini kullanmayın. Galeri dosyaları herkese açık görüntülenir; kişisel/özel dosya yüklemeyin.
+   Alan adınız yoksa [R2 binding kullanan workers.dev medya servisini](ops/media-worker/README.md) kurabilirsiniz; ücretsiz planın günlük kotası vardır. API, eski kayıtların medya adreslerini de güncel `R2_PUBLIC_ORIGIN` üzerinden döndürür; DB taşıması gerekmez. Yüklenemeyen galeri/kapak görsellerinde yerel dojo logosu gösterilir.
 4. CORS kuralı (örnekteki domain'i kendi site adresinizle değiştirin):
 
 ```json

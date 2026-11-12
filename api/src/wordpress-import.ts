@@ -231,7 +231,7 @@ export async function verifyEvent(db: Db, storage: ObjectStorage, source: Source
     try {
       const object = await storage.inspect(item.key);
       const type = await fileTypeFromBuffer(object.bytes);
-      if (object.size !== item.size || type?.mime !== item.mime || item.url !== `${storage.publicOrigin}/${item.key}`) errors.push(`Görsel ${index + 1}: nesne doğrulaması başarısız.`);
+      if (object.size !== item.size || type?.mime !== item.mime || item.key !== `media/${mediaId}`) errors.push(`Görsel ${index + 1}: nesne doğrulaması başarısız.`);
     } catch { errors.push(`Görsel ${index + 1}: R2 nesnesine erişilemiyor.`); }
   }
   return errors;

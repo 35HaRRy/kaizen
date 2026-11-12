@@ -113,6 +113,9 @@ test("interrupted imports resume, retain editability and never overwrite an exis
     assert.equal(event.coverMediaId, event.media[0].id);
     assert.equal(await store.db.collection("uploads").countDocuments({ adminId: admin!._id, eventId: event._id, state: "attached" }), 2);
     assert.deepEqual(await verifyEvent(store.db, storage, source), []);
+    assert.deepEqual(await verifyEvent(store.db, {
+      ...storage, publicOrigin: "https://kaizen-media.example.workers.dev",
+    }, source), [], "changing the serving origin must not invalidate existing objects");
     const config = loadConfig({ APP_ORIGIN: "http://localhost:3000", MONGODB_URI: "mongodb://unused", MONGODB_DB: "kaizen_test" });
     const app = buildApp({ db: store.db, config });
     const agent = request.agent(app);

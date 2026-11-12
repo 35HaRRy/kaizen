@@ -31,6 +31,7 @@ import { apiRequest, errorMessage } from './api';
 import { PublicForm } from './components/PublicForm';
 import { Modal } from './components/Modal';
 import { EventGallery, formatDate } from './components/EventGallery';
+import { MediaImage } from './components/MediaImage';
 
 // Types
 
@@ -633,8 +634,8 @@ export default function App() {
                 className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all cursor-pointer group flex flex-col"
               >
                 <div className="relative h-64 overflow-hidden bg-slate-200 dark:bg-slate-800">
-                  <img 
-                    src={event.media.find(media=>media.id===event.coverMediaId)?.url ?? '/assets/kaizen-logo-1-rb_d77ba5e7.png'}
+                  <MediaImage
+                    src={event.media.find(media=>media.id===event.coverMediaId)?.url}
                     alt={event.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"

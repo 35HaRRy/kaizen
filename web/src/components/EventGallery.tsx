@@ -7,6 +7,7 @@ import {
   Play,
 } from "lucide-react";
 import type { EventItem, MediaItem } from "../../../shared/events";
+import { MediaImage } from "./MediaImage";
 export function formatDate(date: string) {
   return new Intl.DateTimeFormat("tr-TR", {
     day: "numeric",
@@ -17,7 +18,7 @@ export function formatDate(date: string) {
 }
 export function MediaThumbnail({ media }: { media: MediaItem }) {
   return media.kind === "image" ? (
-    <img src={media.url} alt="" loading="lazy" />
+    <MediaImage src={media.url} alt="" loading="lazy" />
   ) : (
     <span className="video-thumb">
       <Play size={22} />
@@ -72,7 +73,7 @@ export function EventGallery({
         {!selected ? (
           <p>Henüz eklenmiş bir görsel bulunmuyor</p>
         ) : selected.kind === "image" ? (
-          <img src={selected.url} alt={event.title} />
+          <MediaImage src={selected.url} alt={event.title} />
         ) : (
           <video
             key={selected.id}
